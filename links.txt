@@ -1,0 +1,4 @@
+http://www.salesforce.com/us/developer/docs/apexcode/Content/apex_debugging_system_log_console.htm
+
+http://www.salesforce.com/us/developer/docs/apexcode/Content/apex_debugging_debug_log.htm
+
