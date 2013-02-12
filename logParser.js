@@ -22,7 +22,7 @@ function searchLog() {
 	}
 }
 
-var eventMap = {
+var eventStartEnd = {
 	'CALLOUT_REQUEST':					'CALLOUT_RESPONSE',
 	'CODE_UNIT_STARTED':				'CODE_UNIT_FINISHED',
 	'CONSTRUCTOR_ENTRY':				'CONSTRUCTOR_EXIT',
@@ -44,31 +44,39 @@ var eventMap = {
 	'WF_RULE_EVAL_BEGIN':				'WF_RULE_EVAL_END',
 };
 
+//translates the log into a js object
 function parselog() {
 	function createNode(n, p) {
 		return {name: n, parent: p, children: []};
 	}
+	function logLineToString(lineParts) {
+		if(lineParts.length > 1) {
+			return lineParts[1];
+		}
+		return lineParts[0];
+	}
 	var eventStack = new Array();
-	var logTreeRoot = createNode('root', null);
+	var logTreeRoot = createNode(logLineToString(['root']), null);
 	var currentNode = logTreeRoot;
 	var lines = getLogLines();
 	for (var i = 0; i < lines.length; i++) {
 		var lineParts = lines[i].split('|');
-		if(eventStack.length > 0 && eventMap[eventStack[eventStack.length-1]] == lineParts[1]) { //If the line marks the end of another event
+		if(eventStack.length > 0 && eventStartEnd[eventStack[eventStack.length-1]] == lineParts[1]) { //If the line marks the end of another event
 			var tmp = eventStack.pop();
 			currentNode = currentNode.parent;
 		} else { //the event
 			//add the event to the tree
 			eventStack.push(lineParts[1]); 
-			var newChild = createNode(lineParts[1], currentNode);
+			var newChild = createNode(logLineToString(lineParts), currentNode);
 			currentNode.children.push(newChild);
-			if(eventMap[lineParts[1]]) { //if the line marks the starting of an event
+			if(eventStartEnd[lineParts[1]]) { //if the line marks the starting of an event
 				currentNode = newChild; //move into the child
 			}
 		}
 	}
 	return logTreeRoot;
 }
+
 // translate the logTree to a <ul>
 function logTreeToList(logTree) {
 	function nodeToList(node) {
