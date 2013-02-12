@@ -189,9 +189,31 @@ function parselog() {
 	}
 	return logTreeRoot;
 }
+var INDENT_STRING = '&amp;nbsp;';//'-';
+function logTreeToDivs(logTree) {
+	function nodeToDiv(node, indentationLevel) {
+		var lineContainer = document.createElement('div');
+		var indentation = '';
+		for(var i=0; i<indentationLevel; i++) {
+			indentation += INDENT_STRING;
+		}
+		console.log(indentation);
+		lineContainer.innerHTML = indentation + node.name;
+		for(var i=0; i<node.children.length; i++) {
+			lineContainer.appendChild(nodeToDiv(node.children[i], indentationLevel+1));
+		}
+		return lineContainer;
+	}
+	
+	var container = document.createElement('div');
+	for(var i=0; i<logTree.children.length; i++) {
+		container.appendChild(nodeToDiv(logTree.children[i], 0));
+	}
+	return container;
+}
 
 // translate the logTree to a <ul>
-function logTreeToList(logTree) {
+function logTreeToUnorderedList(logTree) {
 	function nodeToList(node) {
 		var list = document.createElement('ul');
 		list.innerHTML = node.name
