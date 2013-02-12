@@ -58,12 +58,15 @@ function parselog() {
 		if(eventStack.length > 0 && eventMap[eventStack[eventStack.length-1]] == lineParts[1]) {
 			var tmp = eventStack.pop();
 			currentNode = currentNode.parent;
-		}
-		if(eventMap[lineParts[1]]) {
+		} else if(eventMap[lineParts[1]]) {
 			eventStack.push(lineParts[1]);
 			var newChild = createNode(lineParts[1], currentNode);
 			currentNode.children.push(newChild);
 			currentNode = newChild;
+		} else {
+			eventStack.push(lineParts[1]);
+			var newChild = createNode(lineParts[1], currentNode);
+			currentNode.children.push(newChild);
 		}
 	}
 	return logTreeRoot;
