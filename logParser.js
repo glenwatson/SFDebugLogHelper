@@ -44,34 +44,32 @@ var eventMap = {
 	'WF_RULE_EVAL_BEGIN':				'WF_RULE_EVAL_END',
 };
 
-function createNode(n, p) {
-	return {name: n, parent: p, children: []};
-}
-
 function parselog() {
+	function createNode(n, p) {
+		return {name: n, parent: p, children: []};
+	}
 	var eventStack = new Array();
 	var logTreeRoot = createNode('root', null);
 	var currentNode = logTreeRoot;
 	var lines = getLogLines();
 	for (var i = 0; i < lines.length; i++) {
 		var lineParts = lines[i].split('|');
-		if(eventStack.length > 0 && eventMap[eventStack[eventStack.length-1]] == lineParts[1]) {
+		if(eventStack.length > 0 && eventMap[eventStack[eventStack.length-1]] == lineParts[1]) { //If the line marks the end of another event
 			var tmp = eventStack.pop();
 			currentNode = currentNode.parent;
-		} else if(eventMap[lineParts[1]]) {
-			eventStack.push(lineParts[1]);
+		} else { //the event
+			//add the event to the tree
+			eventStack.push(lineParts[1]); 
 			var newChild = createNode(lineParts[1], currentNode);
 			currentNode.children.push(newChild);
-			currentNode = newChild;
-		} else {
-			eventStack.push(lineParts[1]);
-			var newChild = createNode(lineParts[1], currentNode);
-			currentNode.children.push(newChild);
+			if(eventMap[lineParts[1]]) { //if the line marks the starting of an event
+				currentNode = newChild; //move into the child
+			}
 		}
 	}
 	return logTreeRoot;
 }
-
+// translate the logTree to a <ul>
 function logTreeToList(logTree) {
 	function nodeToList(node) {
 		var list = document.createElement('ul');
